@@ -50,15 +50,50 @@ class Balls():
         if self.dragging:
             return
 
-        ball_surface = self.y + self.radius
+        closest_x = max(wall.rect.left, min(self.x, wall.rect.right))
+        closest_y = max(wall.rect.top, min(self.y, wall.rect.bottom))
 
-        if (ball_surface >= wall.rect.top and
-            self.y < wall.rect.top and
-            wall.rect.left <= self.x <= wall.rect.right):
+        dis_x = self.x - closest_x
+        dis_y = self.y - closest_y
 
-            if self.dy > 0:
-                self.y = wall.rect.top - self.radius
-                self.dy = -self.dy * 0.7
+        distance = math.sqrt(dis_x**2 + dis_y**2)
+
+        if distance <= self.radius:
+            if distance > 0:
+                normal_x = dis_x / distance
+                normal_y = dis_y / distance
+
+                overlap = self.radius - distance
+
+            else:
+                left = self.x - wall.rect.left
+                right = wall.rect.right - self.x
+                top = self.y - wall.rect.top
+                bottom = wall.rect.bottom - self.y
+
+                nearest = min(left, right, top, bottom)
+
+                if nearest == left:
+                    normal_x, normal_y = -1, 0
+                elif nearest == right:
+                    normal_x, normal_y = 1, 0
+                elif nearest == top:
+                    normal_x, normal_y = 0, -1
+                elif nearest == bottom:
+                    normal_x, normal_y = 0, 1
+
+                overlap = self.radius + nearest
+
+            self.x += normal_x * overlap
+            self.y += normal_y * overlap
+
+            normal_v = self.dx * normal_x + self.dy * normal_y
+
+            if normal_v < 0:
+                restitution = 0.7
+
+                self.dx -= (1 + restitution) * normal_v * normal_x
+                self.dy -= (1 + restitution) * normal_v * normal_y
 
 
 class Wall():
