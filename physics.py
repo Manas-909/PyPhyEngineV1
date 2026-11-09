@@ -53,9 +53,8 @@ class Balls():
         ball_surface = self.y + self.radius
 
         if (ball_surface >= wall.rect.top and
-            self.y - self.radius < wall.rect.bottom and
-            self.x + self.radius >= wall.rect.left and
-            self.x - self.radius <= wall.rect.right):
+            self.y < wall.rect.top and
+            wall.rect.left <= self.x <= wall.rect.right):
 
             if self.dy > 0:
                 self.y = wall.rect.top - self.radius
