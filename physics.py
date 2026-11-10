@@ -9,7 +9,7 @@ pygame.display.set_caption("PyPhy Engine")
 WIDTH, HEIGHT = 1000, 600
 PTM = 100
 GRAVITY = 9.8
-FPS = 60
+FPS = 120
 
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -46,9 +46,43 @@ class Balls():
         self.y = cur_y
         self.pre_pos = cur_pos
 
-    def check_collision(self, wall):
+    def check_collision(self, wall, balls):
         if self.dragging:
             return
+
+        for ball in balls:
+
+            distance = math.sqrt((self.x - ball.x)**2 + (self.y - ball.y)**2)
+
+            if ball is not self:
+                if distance <= self.radius + ball.radius:
+
+                    overlap_ball = ((self.radius + ball.radius) - distance) / 2
+
+                    ball_nx = (self.x - ball.x) / distance
+                    ball_ny = (self.y - ball.y) / distance
+
+                    relative_nx = (self.dx - ball.dx) / 2
+                    relative_ny = (self.dy - ball.dy) / 2
+
+                    ball_nv = relative_nx * ball_nx + relative_ny * ball_ny
+
+                    if ball_nv < 0:
+                        elasticity = 0.6
+                        impulse = -(1 + elasticity) / ball_nv
+
+                        self.dx += impulse * ball_nx
+                        self.dy += impulse * ball_ny
+
+                        ball.dx -= impulse * ball_nx
+                        ball.dy -= impulse * ball_ny
+
+                    self.x += ball_nx * overlap_ball
+                    self.y += ball_ny * overlap_ball
+
+                    ball.x -= ball_nx * overlap_ball
+                    ball.y -= ball_ny * overlap_ball
+
 
         closest_x = max(wall.rect.left, min(self.x, wall.rect.right))
         closest_y = max(wall.rect.top, min(self.y, wall.rect.bottom))
@@ -112,7 +146,7 @@ class Wall():
 def simulate_ball(balls, wall, dt):
     for ball in balls:
         ball.draw_balls()
-        ball.check_collision(wall)
+        ball.check_collision(wall, balls)
         ball.update_physics(dt)
 
 
