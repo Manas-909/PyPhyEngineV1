@@ -46,43 +46,43 @@ class Balls():
         self.y = cur_y
         self.pre_pos = cur_pos
 
-    def check_collision(self, wall, balls):
-        if self.dragging:
+    def ball_collision(self, ball):
+        if self.dragging or ball.dragging or ball is self:
             return
 
-        for ball in balls:
+        distance = math.sqrt((self.x - ball.x)**2 + (self.y - ball.y)**2)
 
-            distance = math.sqrt((self.x - ball.x)**2 + (self.y - ball.y)**2)
+        if distance <= self.radius + ball.radius:
+            overlap_ball = ((self.radius + ball.radius) - distance) / 2
+            
+            ball_nx = (self.x - ball.x) / distance
+            ball_ny = (self.y - ball.y) / distance
+            
+            relative_nx = (self.dx - ball.dx) / 2
+            relative_ny = (self.dy - ball.dy) / 2
+            
+            ball_nv = relative_nx * ball_nx + relative_ny * ball_ny
+            
+            if ball_nv < 0:
+                elasticity = 0.6
+                impulse = -(1 + elasticity) * ball_nv / 2
+            
+                self.dx += impulse * ball_nx
+                self.dy += impulse * ball_ny
+            
+                ball.dx -= impulse * ball_nx
+                ball.dy -= impulse * ball_ny
+            
+            self.x += ball_nx * overlap_ball
+            self.y += ball_ny * overlap_ball
+            
+            ball.x -= ball_nx * overlap_ball
+            ball.y -= ball_ny * overlap_ball
 
-            if ball is not self:
-                if distance <= self.radius + ball.radius:
 
-                    overlap_ball = ((self.radius + ball.radius) - distance) / 2
-
-                    ball_nx = (self.x - ball.x) / distance
-                    ball_ny = (self.y - ball.y) / distance
-
-                    relative_nx = (self.dx - ball.dx) / 2
-                    relative_ny = (self.dy - ball.dy) / 2
-
-                    ball_nv = relative_nx * ball_nx + relative_ny * ball_ny
-
-                    if ball_nv < 0:
-                        elasticity = 0.6
-                        impulse = -(1 + elasticity) / ball_nv
-
-                        self.dx += impulse * ball_nx
-                        self.dy += impulse * ball_ny
-
-                        ball.dx -= impulse * ball_nx
-                        ball.dy -= impulse * ball_ny
-
-                    self.x += ball_nx * overlap_ball
-                    self.y += ball_ny * overlap_ball
-
-                    ball.x -= ball_nx * overlap_ball
-                    ball.y -= ball_ny * overlap_ball
-
+    def check_collision(self, wall):
+        if self.dragging:
+            return
 
         closest_x = max(wall.rect.left, min(self.x, wall.rect.right))
         closest_y = max(wall.rect.top, min(self.y, wall.rect.bottom))
@@ -145,12 +145,17 @@ class Wall():
     
 def simulate_ball(balls, walls, dt):
     for ball in balls:
-        ball.draw_balls()
+        ball.update_physics(dt)
 
         for wall in walls:
-            ball.check_collision(wall, balls)
-        
-        ball.update_physics(dt)
+            ball.check_collision(wall)
+
+    for i in range(len(balls)):
+        for j in range(i + 1, len(balls)):
+            balls[i].ball_collision(balls[j])
+
+    for ball in balls:
+        ball.draw_balls()
 
 
 def draw_grid():
