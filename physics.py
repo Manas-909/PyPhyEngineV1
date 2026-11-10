@@ -143,10 +143,13 @@ class Wall():
         pygame.draw.rect(window, (0, 0, 0), self.rect, 1)
 
     
-def simulate_ball(balls, wall, dt):
+def simulate_ball(balls, walls, dt):
     for ball in balls:
         ball.draw_balls()
-        ball.check_collision(wall, balls)
+
+        for wall in walls:
+            ball.check_collision(wall, balls)
+        
         ball.update_physics(dt)
 
 
@@ -163,9 +166,12 @@ def main(window):
     clock = pygame.time.Clock()
     run = True
 
-    wall = Wall(200, 500, 600, 40)
+    wall1 = Wall(200, 500, 600, 40)
+    wall2 = Wall(200, 250, 40, 250)
+    wall3 = Wall(760, 250, 40, 250)
 
     balls = []
+    walls = [wall1, wall2, wall3]
     active_ball = None
 
     while run:
@@ -191,9 +197,10 @@ def main(window):
         window.fill((255, 255, 255))
         draw_grid()
 
-        wall.draw_wall()
+        for wall in walls:
+            wall.draw_wall()
 
-        simulate_ball(balls, wall, dt)
+        simulate_ball(balls, walls, dt)
         if active_ball:
             active_ball.update_state(pygame.mouse.get_pos(), dt)
 
