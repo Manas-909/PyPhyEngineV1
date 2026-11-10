@@ -22,6 +22,8 @@ class Balls():
         self.dx = 0
         self.dragging = True
         self.pre_pos = (x, y)
+        self.collision = 0
+        self.elasticity = 0.6
 
     def draw_balls(self):
         pygame.draw.circle(window, (0, 255, 0), (self.x, self.y), self.radius)
@@ -64,8 +66,7 @@ class Balls():
             ball_nv = relative_nx * ball_nx + relative_ny * ball_ny
             
             if ball_nv < 0:
-                elasticity = 0.6
-                impulse = -(1 + elasticity) * ball_nv / 2
+                impulse = -(1 + self.elasticity) * ball_nv / 2
             
                 self.dx += impulse * ball_nx
                 self.dy += impulse * ball_ny
@@ -93,6 +94,7 @@ class Balls():
         distance = math.sqrt(dis_x**2 + dis_y**2)
 
         if distance <= self.radius:
+
             if distance > 0:
                 normal_x = dis_x / distance
                 normal_y = dis_y / distance
@@ -157,7 +159,6 @@ def simulate_ball(balls, walls, dt):
     for ball in balls:
         ball.draw_balls()
 
-
 def draw_grid():
     grid_size = 30
 
@@ -165,6 +166,18 @@ def draw_grid():
         pygame.draw.line(window, (211, 211, 211), (x, 0), (x, HEIGHT))
     for y in range(0, HEIGHT, grid_size):
         pygame.draw.line(window, (211, 211, 211), (0, y), (WIDTH, y))
+
+def draw_stats(ball):
+    rect = pygame.Rect(10, 10, 200, 140)
+    pygame.draw.rect(window, (228, 228, 228), rect, border_radius=10)
+    pygame.draw.rect(window, (100, 100, 100), rect, 1, 10)
+    font = pygame.font.SysFont("Arial", 20)
+
+    stats = [f"X Velocity : {ball.dx:.2f} m/s", f"Y Velocity : {ball.dy:.2f} m/s", f"Elasticity : {ball.elasticity}"]
+
+    for i, line in enumerate(stats):
+        stat = font.render(line, True, (50, 50, 50))
+        window.blit(stat, (rect.x + 15, rect.y + 30 * i + 10))
 
 
 def main(window):
@@ -208,6 +221,9 @@ def main(window):
         simulate_ball(balls, walls, dt)
         if active_ball:
             active_ball.update_state(pygame.mouse.get_pos(), dt)
+
+        if len(balls):
+            draw_stats(balls[-1])
 
         pygame.display.update()
 
