@@ -9,3 +9,5 @@ Make sure you have Python installed on your system, firstly you have to
 clone this repository with ```git clone https://github.com/Manas-909/PyPhyEngineV1``` and then 
 navigate to the project directory with ```cd PyPhyEngineV1```, install the dependencies 
 with ```pip install pygame``` and finally run the engine with ```python physics.py```
+
+or you can download the Windows executable from [itch.io](https://neongs505.itch.io/pyphy-engine-v1) 
