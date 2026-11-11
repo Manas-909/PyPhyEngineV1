@@ -1,6 +1,8 @@
 # PyPhy Engine V1
 <img width="1242" height="745" alt="image" src="https://github.com/user-attachments/assets/9847c8d6-f247-41d9-8fff-4b9630c568dd" />
 
+
+
 PyPhy Engine is a physics simulation engine made with Pygame. It currently supports gravity, circular rigid bodies, and wall collision in V1. It's quite buggy tbh (I'll be fixing that in future versions). In future versions, I will be implementing a draw function that lets you draw
 a wall with your mouse. The code for this project is written by me and not copied from anyone else, however AI (Chat GPT) was occasionally used for debugging
 when I couldn't seem to fix the error after thinking about it for a long time, also i'm not that great at physics so
